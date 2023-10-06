@@ -26,9 +26,13 @@ sentences = [sentence.strip() for sentence in text.split('.') if 'Geese' in sent
 # Function to post a random sentence on Twitter
 def post_random_sentence():
     sentence = random.choice(sentences)
+    tweet = (
+        "Hi, this is the GooseManifestoBot. Do not forget the reason we keep grinding. "
+        f"Let me remind you with a quote from our 'A Cyphergoose's Manifesto': {sentence}"
+    )
     try:
-        api.update_status(sentence)
-        print(f"Posted: {sentence}")
+        api.update_status(tweet)
+        print(f"Posted: {tweet}")
     except tweepy.TweepError as e:
         print(f"Error: {e.reason}")
         if 'Rate limit exceeded' in e.reason:
