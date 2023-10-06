@@ -3,6 +3,10 @@ import schedule
 import time
 import random
 from decouple import Config
+import logging
+
+# Set up logging
+logging.basicConfig(filename='errors.log', level=logging.ERROR)
 
 # Load credentials from .env file
 config = Config()
@@ -34,7 +38,9 @@ def post_random_sentence():
         api.update_status(tweet)
         print(f"Posted: {tweet}")
     except tweepy.TweepError as e:
-        print(f"Error: {e.reason}")
+        error_message = f"Error: {e.reason}"
+        print(error_message)
+        logging.error(error_message)
         if 'Rate limit exceeded' in e.reason:
             print("Rate limit exceeded. Waiting...")
         else:
