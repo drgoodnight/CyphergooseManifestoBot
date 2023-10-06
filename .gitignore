@@ -1,3 +1,7 @@
+# Used by dotenv library to load environment variables.
+.env
+
+
 # Build and Release Folders
 bin-debug/
 bin-release/
