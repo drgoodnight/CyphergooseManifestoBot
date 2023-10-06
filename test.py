@@ -48,8 +48,8 @@ def post_random_sentence():
             print("An error occurred. Waiting for 5 minutes before retrying...")
             time.sleep(300)  # Wait for 5 minutes before retrying
 
-# Schedule the function to run daily at a specific time, e.g., 12:00
-schedule.every().day.at("12:00").do(post_random_sentence)
+# Schedule the function to run every 5 minutes
+schedule.every(5).minutes.do(post_random_sentence)
 
 # Keep the script running
 while True:
