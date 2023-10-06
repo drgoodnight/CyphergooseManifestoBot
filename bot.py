@@ -17,7 +17,7 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
 # Load the provided text from a file
-with open('text.txt', 'r') as file:
+with open('manifesto.txt', 'r') as file:
     text = file.read()
 
 # Extract sentences containing "Geese"
