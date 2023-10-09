@@ -1,4 +1,5 @@
 import os
+import random
 import re
 import tweepy
 import math
@@ -43,6 +44,22 @@ def get_random_sentence(filename):
 
     return sentence
 
+# Function to split the quote into parts without dividing words
+def split_quote(quote, length):
+    words = quote.split()
+    parts = []
+    current_part = ''
+
+    for word in words:
+        if len(current_part) + len(word) + 1 <= length:
+            current_part += ' ' + word
+        else:
+            parts.append(current_part.strip())
+            current_part = word
+
+    parts.append(current_part.strip())
+    return parts
+
 # Get a random sentence from the file
 quote = get_random_sentence('manifesto.txt')
 
@@ -51,20 +68,24 @@ if quote:
     
     # If the quote is longer than 200 characters, split it into a thread
     if len(quote) > 200:
+        # Split the quote into parts without dividing words
+        quote_parts = split_quote(quote, 200)
+
         # Calculate the number of tweets needed
-        num_tweets = math.ceil(len(quote) / 200)
-        
-        # Split the quote into parts of 200 characters each
-        quote_parts = [quote[i:i + 200] for i in range(0, len(quote), 200)]
+        num_tweets = len(quote_parts)
 
         # Tweet each part as a thread
         for i, part in enumerate(quote_parts):
             tweet_text = f'🧵 {i+1}/{num_tweets}👇 "{part}"'
             if i == 0:
-                tweet = client.create_tweet(text=tweet_text)
+                response = client.create_tweet(text=tweet_text)
+                tweet_data = response.data
             else:
-                tweet = client.create_tweet(text=tweet_text, reply_to=tweet.id)
+                response = client.create_tweet(text=tweet_text, in_reply_to_tweet_id=previous_tweet_id)  # Reply to the previous tweet ID
+                tweet_data = response.data
+            
             print(f"Tweeted: {tweet_text}")
+            previous_tweet_id = tweet_data['id']  # Store the ID of the current tweet for the next iteration
     else:
         # If the quote is less than 200 characters, tweet it normally
         tweet_text = f'"{quote}"'
