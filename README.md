@@ -32,7 +32,7 @@ Setting Up Locally
         You need Python installed on your machine. You can download it from python.org.
         Install the required Python packages. Open a terminal, navigate to the directory containing the script, and run:
 
-        bash
+        
 
     pip install tweepy python-dotenv
 
@@ -41,7 +41,7 @@ Set Up Environment Variables:
     Create a .env file in the same directory as the script.
     Add your Twitter API credentials to the .env file in the following format:
 
-    env
+    
 
     CONSUMER_KEY=your_consumer_key
     CONSUMER_SECRET=your_consumer_secret
@@ -57,7 +57,7 @@ Run the Script:
 
     In the terminal, navigate to the directory containing the script and run:
 
-    bash
+    
 
     python3 bot.py
 
