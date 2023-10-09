@@ -76,7 +76,9 @@ if quote:
 
         # Tweet each part as a thread
         for i, part in enumerate(quote_parts):
-            tweet_text = f'🧵 {i+1}/{num_tweets}👇 "{part}"'
+            # Conditionally add the "👇" symbol if it's not the last part of the thread
+            arrow_symbol = "👇" if i < num_tweets - 1 else ""
+            tweet_text = f'🧵 {i+1}/{num_tweets}{arrow_symbol} "{part}"'
             if i == 0:
                 response = client.create_tweet(text=tweet_text)
                 tweet_data = response.data
