@@ -1,7 +1,7 @@
 import os
-import random
 import re
 import tweepy
+import math
 from dotenv import load_dotenv
 
 # Load the .env file
@@ -47,12 +47,28 @@ def get_random_sentence(filename):
 quote = get_random_sentence('manifesto.txt')
 
 if quote:
-    # Create the tweet text with the quote in quotation marks
-    tweet_text = f'"{quote}"'
-
-    # Authenticate and create a tweet
     client = V2_Auth()
-    client.create_tweet(text=tweet_text)
-    print(f"Tweeted: {tweet_text}")
+    
+    # If the quote is longer than 200 characters, split it into a thread
+    if len(quote) > 200:
+        # Calculate the number of tweets needed
+        num_tweets = math.ceil(len(quote) / 200)
+        
+        # Split the quote into parts of 200 characters each
+        quote_parts = [quote[i:i + 200] for i in range(0, len(quote), 200)]
+
+        # Tweet each part as a thread
+        for i, part in enumerate(quote_parts):
+            tweet_text = f'🧵 {i+1}/{num_tweets}👇 "{part}"'
+            if i == 0:
+                tweet = client.create_tweet(text=tweet_text)
+            else:
+                tweet = client.create_tweet(text=tweet_text, reply_to=tweet.id)
+            print(f"Tweeted: {tweet_text}")
+    else:
+        # If the quote is less than 200 characters, tweet it normally
+        tweet_text = f'"{quote}"'
+        client.create_tweet(text=tweet_text)
+        print(f"Tweeted: {tweet_text}")
 else:
     print("Failed to get a sentence from the file.")
