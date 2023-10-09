@@ -1,5 +1,6 @@
 # Used by dotenv library to load environment variables.
 .env
+env_old.txt
 
 
 # Build and Release Folders

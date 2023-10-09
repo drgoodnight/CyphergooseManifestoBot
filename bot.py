@@ -1,57 +1,58 @@
-import tweepy
-import schedule
-import time
+import os
 import random
-from decouple import Config
-import logging
+import re
+import tweepy
+from dotenv import load_dotenv
 
-# Set up logging
-logging.basicConfig(filename='errors.log', level=logging.ERROR)
+# Load the .env file
+load_dotenv()
 
-# Load credentials from .env file
-config = Config()
-API_KEY = config('API_KEY')
-API_SECRET_KEY = config('API_SECRET_KEY')
-ACCESS_TOKEN = config('ACCESS_TOKEN')
-ACCESS_TOKEN_SECRET = config('ACCESS_TOKEN_SECRET')
+CONSUMER_KEY = os.getenv("CONSUMER_KEY")
+CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN_SECRET")
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
-# Authenticate with Twitter
-auth = tweepy.OAuthHandler(API_KEY, API_SECRET_KEY)
-auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
-
-# Load the provided text from a file
-with open('manifesto.txt', 'r') as file:
-    text = file.read()
-
-# Split the text into sentences
-sentences = text.split('.')
-
-# Function to post a random pair of consecutive sentences on Twitter
-def post_random_sentence():
-    index = random.randint(0, len(sentences) - 2)  # Adjust index range to prevent IndexError
-    sentence_pair = sentences[index].strip() + ". " + sentences[index + 1].strip() + "."
-    tweet = (
-        "Hi, this is the GooseManifestoBot. Do not forget the reason we keep grinding. "
-        f"Let me remind you with a quote from our 'A Cyphergoose's Manifesto': {sentence_pair}"
+# V2 API Twitter Authentication
+def V2_Auth():
+    client = tweepy.Client(
+        bearer_token=BEARER_TOKEN,
+        consumer_key=CONSUMER_KEY,
+        consumer_secret=CONSUMER_SECRET,
+        access_token=ACCESS_TOKEN,
+        access_token_secret=ACCESS_TOKEN_SECRET,
+        wait_on_rate_limit=True
     )
-    try:
-        api.update_status(tweet)
-        print(f"Posted: {tweet}")
-    except tweepy.TweepError as e:
-        error_message = f"Error: {e.reason}"
-        print(error_message)
-        logging.error(error_message)
-        if 'Rate limit exceeded' in e.reason:
-            print("Rate limit exceeded. Waiting...")
-        else:
-            print("An error occurred. Waiting for 5 minutes before retrying...")
-            time.sleep(300)  # Wait for 5 minutes before retrying
+    return client
 
-# Schedule the function to run daily at a specific time, e.g., 12:00
-schedule.every().day.at("12:00").do(post_random_sentence)
+# Function to get a random sentence containing specific words from the file
+def get_random_sentence(filename):
+    with open(filename, 'r') as file:
+        sentences = file.readlines()
 
-# Keep the script running
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+    # Filter sentences containing the specific words
+    keywords = ['Geese', 'geese', 'goose', 'Dmitri']
+    matching_sentences = [sentence for sentence in sentences if any(keyword in sentence for keyword in keywords)]
+
+    if not matching_sentences:
+        print("No sentences found containing the specific words.")
+        return None
+
+    # Get a random sentence from the filtered list
+    sentence = random.choice(matching_sentences).strip()
+
+    return sentence
+
+# Get a random sentence from the file
+quote = get_random_sentence('manifesto.txt')
+
+if quote:
+    # Create the tweet text with the quote in quotation marks
+    tweet_text = f'"{quote}"'
+
+    # Authenticate and create a tweet
+    client = V2_Auth()
+    client.create_tweet(text=tweet_text)
+    print(f"Tweeted: {tweet_text}")
+else:
+    print("Failed to get a sentence from the file.")
