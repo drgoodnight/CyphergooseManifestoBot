@@ -57,7 +57,7 @@ Run the Script:
 
     In the terminal, navigate to the directory containing the script and run:
 
-    
+    bash
 
     python3 bot.py
 
